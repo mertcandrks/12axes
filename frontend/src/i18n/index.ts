@@ -3,7 +3,7 @@
 // para que quiz e resultados sejam rebuscados já no idioma novo.
 import type { PersonalityCategory, ProfileDimension } from '../types/quiz';
 
-export type Lang = 'pt' | 'en';
+export type Lang = 'pt' | 'en' | 'tr';
 
 const STORAGE_KEY = '12axes-lang';
 
@@ -12,6 +12,7 @@ const STORAGE_KEY = '12axes-lang';
 function langForcedByPath(pathname: string): Lang | null {
   const path = (pathname.replace(/\.html$/, '').replace(/\/+$/, '') || '/');
   if (path === '/en') return 'en';
+  if (path === '/tr') return 'tr';
   if (path === '/br') return 'pt';
   return null;
 }
@@ -25,15 +26,15 @@ export function resolveLang(): Lang {
     return forced;
   }
   const fromUrl = new URLSearchParams(window.location.search).get('lang');
-  if (fromUrl === 'pt' || fromUrl === 'en') {
+  if (fromUrl === 'pt' || fromUrl === 'en' || fromUrl === 'tr') {
     window.localStorage.setItem(STORAGE_KEY, fromUrl);
     return fromUrl;
   }
   const stored = window.localStorage.getItem(STORAGE_KEY);
-  if (stored === 'pt' || stored === 'en') {
+  if (stored === 'pt' || stored === 'en' || stored === 'tr') {
     return stored;
   }
-  return navigator.language?.toLowerCase().startsWith('pt') ? 'pt' : 'en';
+  return navigator.language?.toLowerCase().startsWith('tr') ? 'tr' : navigator.language?.toLowerCase().startsWith('pt') ? 'pt' : 'en';
 }
 
 export const LANG: Lang = resolveLang();
@@ -44,7 +45,7 @@ export function setLang(lang: Lang) {
   url.searchParams.delete('lang');
   // Em /en ou /br a URL é o que define o idioma, então o toggle troca de rota.
   if (langForcedByPath(url.pathname)) {
-    url.pathname = lang === 'en' ? '/en' : '/br';
+    url.pathname = lang === 'en' ? '/en' : lang === 'tr' ? '/tr' : '/br';
   }
   window.location.href = url.toString();
 }
@@ -1628,4 +1629,216 @@ const en: Strings = {
   ]
 };
 
-export const t: Strings = LANG === 'en' ? en : pt;
+const tr: Strings = {
+  ...en,
+  htmlLang: 'tr',
+  docTitle: '12 Eksen — Türkçe Siyasi Görüş Testi',
+  loadingAnalysis: 'Siyasi görüş analizi yükleniyor...',
+  loadingQuiz: 'Sorular yükleniyor...',
+  loadingResult: 'Sonuçlar yükleniyor...',
+  tryAgain: 'Tekrar dene',
+  crashTitle: 'Bir sorun oluştu',
+  crashBody: 'Beklenmeyen bir hata oluştu. Sayfayı yenileyin.',
+  crashBodyWithProgress: 'Beklenmeyen bir hata oluştu ancak yanıtlarınız kaydedildi. Sayfayı yenileyerek devam edebilirsiniz.',
+  crashReload: 'Sayfayı yenile',
+  resumeEyebrow: 'Yarım kalan test',
+  resumeTitle: 'Kaldığınız yerden devam edin',
+  resumeBody: (answered,total) => `${total} sorunun ${answered} tanesini yanıtladınız. Yanıtlarınız bu tarayıcıda kayıtlı.`,
+  resumeContinue: 'Devam et',
+  resumeDiscard: 'Baştan başla',
+  resumeUnavailable: 'Önceki test yüklenemedi. Lütfen yeniden başlayın.',
+  skipToContent: 'İçeriğe geç',
+  backToStartAria: 'Ana sayfaya dön',
+  mainNavAria: 'Ana menü',
+  navHow: 'Nasıl çalışır?',
+  navAxes: '12 Eksen',
+  navSpectrum: 'Siyasi yelpaze',
+  navFaq: 'SSS',
+  navBooks: 'Kitaplar',
+  navIdeologies: 'İdeolojiler',
+  navPersonalities: 'Siyasi kişiler',
+  navCountries: 'Ülkeler',
+  navSupport: 'Destek',
+  langToggleLabel: 'EN',
+  langToggleAria: 'Dili değiştir',
+  redoQuiz: 'Testi yeniden çöz',
+  religionLabel: 'Din',
+  religionQuestion: 'Bir dine mensup musunuz? Bu bilgiyi yalnızca önerileri kişiselleştirmek için kullanıyoruz.',
+  religionNone: 'Dine mensup değilim',
+  religionNames: { christianity:'Hristiyanlık', judaism:'Yahudilik', islam:'İslam', buddhism:'Budizm', hinduism:'Hinduizm' },
+  denominationLabel: 'Hristiyanlık mezhebi',
+  denominationQuestion: 'Hangi Hristiyanlık geleneğine mensupsunuz?',
+  denominationNames: { catholic:'Katolik',protestant:'Protestan',orthodox:'Ortodoks' },
+  restartQuiz: 'Testi yeniden başlat',
+  heroEyebrow: 'Siyasi görüşünü keşfet',
+  h1Pre: 'Siyasi ',
+  h1Em: 'görüşünü',
+  h1Post: ' gerçekten biliyor musun?',
+  introLead: 'Siyasi görüşünüzü 12 farklı eksende keşfedin. Görüşlerinize en yakın ideolojileri, ülkeleri ve siyasi kişileri öğrenin.',
+  startQuiz: 'Görüşümü keşfet',
+  seeAxes: '12 ekseni gör',
+  heroLabels: ['Ücretsiz','Anonim','Hızlı','Anında sonuç'],
+  heroTeaserLabel: 'uyum',
+  heroTeaserTag: 'Örnek sonuç',
+  heroDeckDot: (position,total) => `${total} örnekten ${position}. örneği göster`,
+  heroDeckAlt: (ideology) => `Örnek sonuç kartı: ${ideology}`,
+  formats: {
+    short: {label:'Kısa', questionCount:'36 soru',description:'Hızlı bir ilk değerlendirme',duration:'Yaklaşık 5 dk.',action:'Kısa testi başlat'},
+    extended: {label:'Tam',questionCount:'60 soru',description:'Daha ayrıntılı siyasi profil',duration:'Yaklaşık 9 dk.',action:'Tam testi başlat'},
+    extreme: {label:'Kapsamlı',questionCount:'240 soru',description:'12 eksenin tamamını en ayrıntılı şekilde değerlendir',duration:'Yaklaşık 30 dk.',action:'Kapsamlı testi başlat'}
+  },
+  axisInfoAria: label => `${label} ekseni hakkında bilgi`,
+  questionHelpAria:'Soruyu açıkla',
+  themeToDarkAria:'Karanlık temaya geç',
+  themeToLightAria:'Açık temaya geç',
+  questionHelpTitle:'Bu soru hakkında',
+  questionHelpAgree:'Katılırsanız',
+  questionHelpDisagree:'Katılmazsanız',
+  questionHelpNote:'Not',
+  closeLabel:'Kapat',
+  personalityInfoAria: name => `${name} hakkında ayrıntılar`,
+  closenessTitle:'Ortak noktalarınız',
+  closenessYou:'Siz',
+  compareEyebrow:'Karşılaştırmalı analiz',
+  compareTitle:'Profilleri karşılaştır',
+  compareLead:'Bir siyasi kişi, ülke veya ideoloji seçerek görüşlerinizin hangi eksenlerde örtüştüğünü görün.',
+  compareSearchLabel:'Karşılaştırılacak profil',
+  compareSearchPlaceholder:'Siyasi kişi, ülke veya ideoloji ara',
+  compareView:'Görüntüle',
+  compareAxesTitle:'12 ekseniniz',
+  compareNoResults:'Profil bulunamadı.',
+  compareLoading:'Karşılaştırılıyor...',
+  compareLoadError:'Karşılaştırma yüklenemedi.',
+  compareTypeLabels:{personality:'Siyasi kişi',country:'Ülke',ideology:'İdeoloji'},
+  howEyebrow:'Nasıl çalışır?',
+  howTitle:'12 eksende siyasi profil',
+  howLead:'Görüşlerinizi farklı siyasi başlıklarda ölçün.',
+  axesGuideEyebrow:'12 eksen',
+  axesGuideTitle:'Siyasi görüşünüzün 12 boyutu',
+  axesGuideLead:'Her eksen iki farklı siyasi yaklaşımı karşılaştırır.',
+  discoveryEyebrow:'Sonuçlar',
+  discoveryTitle:'Görüşlerinizi keşfedin',
+  discoveryLead:'Size yakın ideoloji, ülke ve kişileri karşılaştırın.',
+  exampleEyebrow:'Örnek',
+  exampleTitle:'Sonuç örneği',
+  exampleCaption:'Örnek siyasi görüş profili',
+  exampleCta:'Teste başla',
+  spectrumEyebrow:'Siyasi yelpaze',
+  spectrumTitle:'Siyasi görüşler',
+  spectrumLead:'Farklı siyasi yaklaşımları inceleyin.',
+  faqTitle:'Sık sorulan sorular',
+  faqLead:'Test hakkında merak edilenler.',
+  navStart:'Teste başla',
+  menuAria:'Menü',
+  roseAria:'Siyasi eksen grafiği',
+  versionsEyebrow:'Test seçenekleri',
+  versionsTitle:'Test uzunluğunu seçin',
+  versionsLead:'Ne kadar ayrıntılı analiz istediğinize karar verin.',
+  variantEyebrow:'Test seçimi',
+  variantTitlePre:'Size uygun ',
+  variantTitleEm:'testi seçin',
+  backToStart:'Ana sayfa',
+  depthLabel:'Ayrıntı düzeyi',
+  depthAria: level => `Ayrıntı düzeyi ${level}`,
+  recommended:'Önerilen',
+  formatNotes:['12 eksen','İdeoloji eşleşmeleri','Anında sonuç'],
+  variantLead:'Kısa, tam veya kapsamlı sürümü seçin.',
+  quizNavAria:'Test gezinmesi',
+  autoAdvance:'Otomatik ilerle',
+  back:'Geri',
+  next:'İleri',
+  calculating:'Hesaplanıyor...',
+  seeResult:'Sonuçları gör',
+  archetypeSkip:'Atla',
+  errMissingAnswer:'Lütfen bir yanıt seçin.',
+  errLoadQuiz:'Sorular yüklenemedi.',
+  errCalc:'Sonuç hesaplanamadı.',
+  errImage:'Görsel oluşturulamadı.',
+  errHttp: status => `Sunucu hatası: ${status}`,
+  resultsEyebrow:'Siyasi profiliniz',
+  resultsH1Pre:'Sizin ',
+  resultsH1Em:'sonuçlarınız',
+  resultsLead:count => `${count} yanıtınızdan hesaplanan siyasi profiliniz.`,
+  resultsLeadShared:'Paylaşılan siyasi görüş profili.',
+  resultsSummaryAria:'Sonuç özeti',
+  metaTop:'En yakın eşleşme',
+  axesSectionEyebrow:'Siyasi eksenler',
+  axesSectionTitle:'12 eksendeki konumunuz',
+  proximityEyebrow:'Uyum',
+  otherMatches:'Diğer eşleşmeler',
+  navOnThisPage:'Bu sayfada',
+  resultsNavAxes:'Eksenler',
+  resultsNavSignature:'İdeolojiler',
+  resultsNavCountries:'Ülkeler',
+  resultsNavPersonalities:'Siyasi kişiler',
+  resultsNavAreas:'Karşılaştırmalar',
+  resultsNavBooks:'Kitaplar',
+  redoAnalysis:'Testi yeniden çöz',
+  share:'Paylaş',
+  saveOrShare:'Sonucunu paylaş',
+  generatingPng:'PNG hazırlanıyor...',
+  generatingPdf:'PDF hazırlanıyor...',
+  downloadPdf:'PDF indir',
+  shareFilePrefix:'12eksen-profil',
+  shareMessage:(ideology,ip,country,cp,person,pp) =>
+    `12 Eksen siyasi görüş testini çözdüm!\n\nİdeoloji: ${ideology} (%${ip})\nÜlke: ${country} (%${cp})\nKişi: ${person} (%${pp})`,
+  progress:(current,total)=>`Soru ${current}/${total}`,
+  progressDone: percent=>`%${percent} tamamlandı`,
+  archetypeHeader:'Siyasi yaklaşımınızı belirliyoruz',
+  archetypeStep:(current,total)=>`${current}/${total}`,
+  progressAria:percent=>`Test ilerlemesi: %${percent}`,
+  answersAria:'Yanıt seçenekleri',
+  countryKicker:'En uyumlu ülke',
+  flagLabel:'Bayrak',
+  flagHistoricLabel:'Bayrak / tarihî simge',
+  flagAlt:(label,name)=>`${name}: ${label}`,
+  flagUnavailable:'Bayrak yok',
+  flagUnavailableAria:name=>`${name} bayrağı bulunamadı`,
+  personalityKicker:'En uyumlu siyasi kişi',
+  portraitAlt:name=>`${name} portresi`,
+  portraitUnavailableAria:name=>`${name} portresi bulunamadı`,
+  compatibilityAria:pct=>`Uyum: yüzde ${pct}`,
+  matchWord:'uyum',
+  compatibilityLevels:{veryHigh:'Çok yüksek uyum',high:'Yüksek uyum',medium:'Orta uyum',low:'Düşük uyum',veryLow:'Çok düşük uyum'},
+  shareTitle:'Siyasi görüş profilim | 12 Eksen',
+  shareTopMatch:'En yakın eşleşme',
+  shareCountry:'En uyumlu ülke',
+  sharePersonality:'Siyasi kişi',
+  shareResultLabel:'SONUCUM',
+  shareMostCompatible:'EN UYUMLU',
+  shareYourAxes:'12 EKSENİNİZ',
+  shareOtherPersonalities:'DİĞER KİŞİLER',
+  shareNearbyCountries:'YAKIN ÜLKELER',
+  shareFooterCta:'SİYASİ GÖRÜŞÜNÜ KEŞFET',
+  supportEyebrow:'Projeye destek',
+  supportTitleEm:'Destek ol',
+  supportLead:'12 Eksen bağımsız ve ücretsiz bir testtir.',
+  supportPrivacyNote:'Kişisel veri toplamıyoruz.',
+  supportCopy:'Kopyala',
+  supportCopied:'Kopyalandı!',
+  footerRights:'© 2026. Tüm hakları saklıdır',
+  report:{
+    ...en.report,
+    fileName:'12eksen-rapor',
+    docLabel:'Ayrıntılı rapor',
+    profileEyebrow:'Siyasi görüş profiliniz',
+    headerLabel:ideology=>`Siyasi görüş raporu · ${ideology}`,
+    kpiCountry:'En yakın ülke',
+    kpiPersonality:'Siyasi kişi',
+    kpiAxes:'İncelenen eksenler',
+    kpiAnswered:count=>`${count} soru yanıtlandı`,
+    tocTitle:'Bu raporda',
+    generatedOn:date=>`Oluşturulma tarihi: ${date}`,
+    axesIntro:'12 eksendeki siyasi konumunuz.',
+    intensityLegend:'Eğilim düzeyi',
+    intensityLevels:['Dengeli · %57 ve altı','Eğilimli · %58–72','Güçlü · %73–87','Çok güçlü · %88 ve üstü'],
+    alsoClose:'Diğer yakın eşleşmeler',
+    continued:'devamı',
+    areasIntro:'12 eksende size en yakın kişiler.',
+    booksIntro:'Görüşlerinize yakın kişilerin kitapları.',
+    aboutTitle:'Bu rapor hakkında',
+    aboutText:'12 Eksen, yanıtlarınızı ideoloji, ülke ve siyasi kişi profilleriyle karşılaştırır. Sonuç bilimsel teşhis değildir.',
+    ctaTitle:'Testi tekrar çözün veya paylaşın'
+  }
+};
+export const t: Strings = LANG === 'tr' ? tr : LANG === 'en' ? en : pt;
