@@ -43,9 +43,10 @@ export function setLang(lang: Lang) {
   window.localStorage.setItem(STORAGE_KEY, lang);
   const url = new URL(window.location.href);
   url.searchParams.delete('lang');
+  if (lang === 'tr') url.searchParams.set('lang', 'tr');
   // Em /en ou /br a URL é o que define o idioma, então o toggle troca de rota.
   if (langForcedByPath(url.pathname)) {
-    url.pathname = lang === 'en' ? '/en' : lang === 'tr' ? '/tr' : '/br';
+    url.pathname = lang === 'en' ? '/en' : lang === 'tr' ? '/' : '/br';
   }
   window.location.href = url.toString();
 }
@@ -1031,8 +1032,8 @@ const en: Strings = {
   navPersonalities: 'Personalities',
   navCountries: 'Countries',
   navSupport: 'Support',
-  langToggleLabel: 'PT',
-  langToggleAria: 'Mudar para português',
+  langToggleLabel: 'TR',
+  langToggleAria: 'Türkçeye geç',
   redoQuiz: 'Retake quiz',
   religionLabel: 'Religion',
   religionQuestion: 'Do you follow a religion? We only use this to tailor your recommendations.',
@@ -1659,7 +1660,7 @@ const tr: Strings = {
   navPersonalities: 'Siyasi kişiler',
   navCountries: 'Ülkeler',
   navSupport: 'Destek',
-  langToggleLabel: 'EN',
+  langToggleLabel: 'PT',
   langToggleAria: 'Dili değiştir',
   redoQuiz: 'Testi yeniden çöz',
   religionLabel: 'Din',
