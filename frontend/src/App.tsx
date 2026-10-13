@@ -347,7 +347,7 @@ function MainApp() {
     return new Map(result.axes.map((axis) => [axis.axisId, axis]));
   }, [result]);
   const homeAxes = useMemo(
-    () => quiz?.axes ?? (LANG === 'tr' ? trHomeAxes(HOME_AXES) : HOME_AXES).map((axis) => ({ ...axis, ...(t.homeAxes[axis.id] ?? {}) })),
+    () => quiz?.axes ?? HOME_AXES.map((axis) => ({ ...axis, ...(LANG === 'tr' ? trHomeAxes([axis])[0] : (t.homeAxes[axis.id] ?? {})) })),
     [quiz]
   );
   useEffect(() => {
