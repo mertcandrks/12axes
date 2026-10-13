@@ -1,4 +1,5 @@
 import { LANG, t } from '../i18n';
+import { trQuiz, trResult } from '../i18n/trQuiz';
 import type { CompareDetail, CompareItem, CompareType, QuizPayload, QuizResult, QuizVariant, SubmittedAnswer } from '../types/quiz';
 
 const API_URL = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '');
@@ -38,7 +39,7 @@ function formatApiError(message: string, status: number): string {
 }
 
 export function fetchQuiz(variant: QuizVariant = 'short'): Promise<QuizPayload> {
-  return request<QuizPayload>(`/api/quiz?variant=${variant}&lang=${LANG}`);
+  return request<QuizPayload>(`/api/quiz?variant=${variant}&lang=${LANG === 'tr' ? 'en' : LANG}`).then(data => LANG === 'tr' ? trQuiz(data) : data);
 }
 
 export function submitResults(
@@ -51,7 +52,7 @@ export function submitResults(
   return request<QuizResult>(`/api/results?lang=${LANG}${religionParam}`, {
     method: 'POST',
     body: JSON.stringify({ variant, answers, archetype })
-  });
+  }).then(data => LANG === 'tr' ? trResult(data) : data);
 }
 
 export function fetchSharedResult(leftPercents: number[], religion: string | null = null): Promise<QuizResult> {
