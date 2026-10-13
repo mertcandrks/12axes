@@ -3,6 +3,7 @@ import { selectAllQuestionsBalanced, selectAndBalanceQuestions } from './utils/q
 import { HOME_AXES } from './data/homeAxes';
 import type { ExampleResult } from './data/exampleResult';
 import { LANG, setLang, t } from './i18n';
+import { trHomeAxes } from './i18n/trQuiz';
 import { fetchQuiz, fetchSharedResult, submitResults } from './services/quizApi';
 import type { AnswerValue, ArchetypeQuestion, QuizPayload, QuizResult, QuizVariant } from './types/quiz';
 import { HomeScreen } from './components/editorial/HomeScreen';
@@ -346,7 +347,7 @@ function MainApp() {
     return new Map(result.axes.map((axis) => [axis.axisId, axis]));
   }, [result]);
   const homeAxes = useMemo(
-    () => quiz?.axes ?? HOME_AXES.map((axis) => ({ ...axis, ...(t.homeAxes[axis.id] ?? {}) })),
+    () => quiz?.axes ?? (LANG === 'tr' ? trHomeAxes(HOME_AXES) : HOME_AXES).map((axis) => ({ ...axis, ...(t.homeAxes[axis.id] ?? {}) })),
     [quiz]
   );
   useEffect(() => {
@@ -759,7 +760,7 @@ function MainApp() {
                 <button
                   className="e-lang"
                   type="button"
-                  onClick={() => setLang(LANG === 'pt' ? 'en' : 'pt')}
+                  onClick={() => setLang(LANG === 'pt' ? 'en' : LANG === 'en' ? 'tr' : 'pt')}
                   aria-label={t.langToggleAria}
                 >
                   {t.langToggleLabel}
