@@ -49,7 +49,7 @@ export function submitResults(
   religion: string | null = null
 ): Promise<QuizResult> {
   const religionParam = religion ? `&religion=${encodeURIComponent(religion)}` : '';
-  return request<QuizResult>(`/api/results?lang=${LANG}${religionParam}`, {
+  return request<QuizResult>(`/api/results?lang=${LANG === 'tr' ? 'en' : LANG}${religionParam}`, {
     method: 'POST',
     body: JSON.stringify({ variant, answers, archetype })
   }).then(data => LANG === 'tr' ? trResult(data) : data);
@@ -57,18 +57,18 @@ export function submitResults(
 
 export function fetchSharedResult(leftPercents: number[], religion: string | null = null): Promise<QuizResult> {
   const religionParam = religion ? `&religion=${encodeURIComponent(religion)}` : '';
-  return request<QuizResult>(`/api/results/by-axes?v=${leftPercents.join(',')}&lang=${LANG}${religionParam}`);
+  return request<QuizResult>(`/api/results/by-axes?v=${leftPercents.join(',')}&lang=${LANG === 'tr' ? 'en' : LANG}${religionParam}`).then(data => LANG === 'tr' ? trResult(data) : data);
 }
 
 
 export function fetchCompareCatalog(religion: string | null = null): Promise<CompareItem[]> {
   const religionParam = religion ? `&religion=${encodeURIComponent(religion)}` : '';
-  return request<CompareItem[]>(`/api/compare/catalog?lang=${LANG}${religionParam}`);
+  return request<CompareItem[]>(`/api/compare/catalog?lang=${LANG === 'tr' ? 'en' : LANG}${religionParam}`);
 }
 
 export function fetchCompare(type: CompareType, id: string, leftPercents: number[]): Promise<CompareDetail> {
   const values = leftPercents.map((value) => Math.round(value * 10) / 10).join(',');
   return request<CompareDetail>(
-    `/api/compare?type=${type}&id=${encodeURIComponent(id)}&v=${values}&lang=${LANG}`
+    `/api/compare?type=${type}&id=${encodeURIComponent(id)}&v=${values}&lang=${LANG === 'tr' ? 'en' : LANG}`
   );
 }
